@@ -27,7 +27,7 @@ scaler = StandardScaler() # standardization method (other scalers: MinMaxScaler(
 k_out_ML = 5 # k value in k-fold outer loop (train/test split)
 random_nb = 221 # random state for k-fold and some ML models
 choice_weight_samples = 0 # 1: weights samples with their 1/uncertainty; 0: all samples have same weight
-choice_HP = 3 # 1: ML without HPs optimization; 2: Definition of HPs window; 3: ML with HPs optimization
+choice_HP = 1 # 1: ML without HPs optimization; 2: Definition of HPs window; 3: ML with HPs optimization
 
 if choice_HP in [2, 3]:
     k_in_ML = 5 # k value in k-fold inner loop used for HPs optimization (train/validation split)
@@ -45,6 +45,7 @@ if choice_HP==2: # selection of the ML model and the HP to optimize
 
 # data loading
 data_final = pd.read_excel("data Sty-GTR.xlsx")
+data_final = pd.concat([data_final.iloc[:,0:5],data_final.iloc[:,5:].round(4)],axis=1)
 
 # inputs X and output y
 X = data_final[['GTR/(GTR+styrene) exp', 'BPO/styrene exp', 'T exp', 't exp']]
@@ -295,7 +296,7 @@ if choice_HP==1:
         plt.xlabel('Styrene conversion EXPERIMENTAL')                   
         plt.ylabel('Styrene conversion PREDICTED')
         plt.legend()
-        plt.title(str(list_mdl_names[k_mdl])+' (fold'+str(fold_min_RMSE+1)+')', fontweight="bold")
+        plt.title(str(list_mdl_names[k_mdl])+' (split'+str(fold_min_RMSE+1)+')', fontweight="bold")
     
     
 #%% 3.2 Machine learning (definition of HPs boudaries and levels)
@@ -341,7 +342,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('C')
                 plt.legend()
-                plt.title('SVR, outer fold'+str(k+1))
+                plt.title('SVR, outer split'+str(k+1))
             
             elif choice_mdlHP=='kernel':
                 param_range_values = ['linear', 'rbf', 'poly', 'sigmoid']
@@ -356,7 +357,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('kernel')
                 plt.legend()
-                plt.title('SVR, outer fold'+str(k+1))
+                plt.title('SVR, outer split'+str(k+1))
 
             elif choice_mdlHP=='epsilon':
                 param_range_values = [0.0001, 0.001, 0.01, 0.05, 0.1, 0.2]
@@ -371,7 +372,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('epsilon')
                 plt.legend()
-                plt.title('SVR, outer fold'+str(k+1))    
+                plt.title('SVR, outer split'+str(k+1))    
 
             elif choice_mdlHP=='gamma':
                 param_range_values = ['scale', 'auto']
@@ -386,7 +387,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('gamma')
                 plt.legend()
-                plt.title('SVR, outer fold'+str(k+1)) 
+                plt.title('SVR, outer split'+str(k+1)) 
         
         elif choice_mdl=='RF':
             if choice_mdlHP=='n_estimators':
@@ -402,7 +403,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('n_estimators')
                 plt.legend()
-                plt.title('RF, outer fold'+str(k+1))
+                plt.title('RF, outer split'+str(k+1))
             
             elif choice_mdlHP=='max_features':
                 param_range_values = ['sqrt', 'log2', 'auto']
@@ -417,7 +418,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('max_features')
                 plt.legend()
-                plt.title('RF, outer fold'+str(k+1))
+                plt.title('RF, outer split'+str(k+1))
                                 
             elif choice_mdlHP=='min_samples_split':
                 param_range_values = [2, 3, 4, 5, 10]
@@ -432,7 +433,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('min_samples_split')
                 plt.legend()
-                plt.title('RF, outer fold'+str(k+1))
+                plt.title('RF, outer split'+str(k+1))
                                 
             elif choice_mdlHP=='min_samples_leaf':
                 param_range_values = [1, 2, 3, 4, 5, 10]
@@ -447,7 +448,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('min_samples_leaf')
                 plt.legend()
-                plt.title('RF, outer fold'+str(k+1))
+                plt.title('RF, outer split'+str(k+1))
             
             elif choice_mdlHP=='max_samples':
                 param_range_values = [int(X_train_scaled.shape[0]*2/5), int(X_train_scaled.shape[0]*3/5), int(X_train_scaled.shape[0]*4/5), int(X_train_scaled.shape[0]*5/5)]
@@ -462,7 +463,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('max_samples')
                 plt.legend()
-                plt.title('RF, outer fold'+str(k+1))
+                plt.title('RF, outer split'+str(k+1))
         
         elif choice_mdl=='GB':     
             if choice_mdlHP=='learning_rate':
@@ -478,7 +479,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('learning_rate')
                 plt.legend()
-                plt.title('GB, outer fold'+str(k+1))
+                plt.title('GB, outer split'+str(k+1))
             
             elif choice_mdlHP=='n_estimators':
                 param_range_values = [10, 50, 100, 150, 200, 500]
@@ -493,7 +494,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('n_estimators')
                 plt.legend()
-                plt.title('GB, outer fold'+str(k+1))
+                plt.title('GB, outer split'+str(k+1))
             
             elif choice_mdlHP=='max_features':
                 param_range_values = ['sqrt', 'log2', 'auto']
@@ -508,7 +509,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('max_features')
                 plt.legend()
-                plt.title('GB, outer fold'+str(k+1))
+                plt.title('GB, outer split'+str(k+1))
                                
             elif choice_mdlHP=='min_samples_split':
                 param_range_values = [2, 3, 4, 5, 10, 20, 30]
@@ -523,7 +524,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('min_samples_split')
                 plt.legend()
-                plt.title('GB, outer fold'+str(k+1))
+                plt.title('GB, outer split'+str(k+1))
                                 
             elif choice_mdlHP=='min_samples_leaf':
                 param_range_values = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]
@@ -538,7 +539,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('min_samples_leaf')
                 plt.legend()
-                plt.title('GB, outer fold'+str(k+1))
+                plt.title('GB, outer split'+str(k+1))
             
             elif choice_mdlHP=='subsample':
                 param_range_values = [1/5,2/5,3/5,4/5,1]
@@ -553,7 +554,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('subsample')
                 plt.legend()
-                plt.title('GB, outer fold'+str(k+1))
+                plt.title('GB, outer split'+str(k+1))
            
         elif choice_mdl=='MLP':
             if choice_mdlHP=='activation':
@@ -569,7 +570,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('activation')
                 plt.legend()
-                plt.title('MLP, outer fold'+str(k+1))
+                plt.title('MLP, outer split'+str(k+1))
                             
             elif choice_mdlHP=='solver':
                 param_range_values = ['lbfgs', 'sgd', 'adam']
@@ -584,7 +585,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('solver')
                 plt.legend()
-                plt.title('MLP, outer fold'+str(k+1))
+                plt.title('MLP, outer split'+str(k+1))
                                 
             elif choice_mdlHP=='learning_rate':
                 param_range_values = ['constant', 'invscaling', 'adaptive']
@@ -599,7 +600,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('learning_rate')
                 plt.legend()
-                plt.title('MLP, outer fold'+str(k+1))
+                plt.title('MLP, outer split'+str(k+1))
             
             elif choice_mdlHP=='learning_rate_init':
                 param_range_values = [0.0001, 0.001, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
@@ -614,7 +615,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('learning_rate_init')
                 plt.legend()
-                plt.title('MLP, outer fold'+str(k+1))
+                plt.title('MLP, outer split'+str(k+1))
         
             elif choice_mdlHP=='alpha':
                 param_range_values = [0.00001, 0.0001, 0.001, 0.01, 0.1]
@@ -629,7 +630,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('alpha')
                 plt.legend()
-                plt.title('MLP, outer fold'+str(k+1))
+                plt.title('MLP, outer split'+str(k+1))
             
             elif choice_mdlHP=='max_iter':
                 mdl_MLP = MLPRegressor(random_state=random_nb)
@@ -645,7 +646,7 @@ if choice_HP==2:
                 plt.ylabel('RMSE')
                 plt.xlabel('max_iter')
                 plt.legend()
-                plt.title('MLP, outer fold'+str(k+1))
+                plt.title('MLP, outer split'+str(k+1))
         
             elif choice_mdlHP=='hidden_layer_sizes':
                 param_range_values =  [(5,5), (5,10), (5,15), (5,20), (5,25), (5,30), (5,50), 
@@ -676,7 +677,7 @@ if choice_HP==2:
                 plt.xlabel('hidden_layer_sizes')
                 plt.xticks(rotation = 90)
                 plt.legend()
-                plt.title('MLP, outer fold'+str(k+1))
+                plt.title('MLP, outer split'+str(k+1))
                                
         
 #%% 3.3 Machine learning (with HPs optimization)    
@@ -963,4 +964,4 @@ if choice_HP==3:
         plt.ylabel('Styrene conversion PREDICTED')
     
         plt.legend()
-        plt.title(str(list_mdl_names[k_mdl])+' OPT (fold'+str(fold_min_RMSE+1)+')', fontweight="bold")
+        plt.title(str(list_mdl_names[k_mdl])+' OPT (split'+str(fold_min_RMSE+1)+')', fontweight="bold")
